@@ -1,0 +1,5 @@
+defaults:
+  - backbone: dinov2
+
+dino_version: 2
+pretrained: true

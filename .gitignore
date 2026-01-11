@@ -1,0 +1,10 @@
+.env
+.DS_store
+.vscode
+
+logs/
+outputs/
+wandb/
+visuals/
+
+**/__pycache__/
