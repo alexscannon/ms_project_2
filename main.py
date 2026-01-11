@@ -10,6 +10,7 @@ from src.models.backbone.DINO import load_dino_model
 from src.analysis.visualization import run_visualization_suite, load_analysis_data
 from src.analysis.group_metrics import calculate_group_metrics
 from src.analysis.artifact_analysis import run_artifact_analysis
+from src.analysis.source_leakage_analysis import run_source_leakage_analysis
 from src.data.cifar100_genai_class import CombinedCIFAR100GenAIDataset
 from src.data.embedding_extractor import DINOEmbeddingExtractor
 
@@ -113,8 +114,11 @@ def main(config: DictConfig):
     df_results = calculate_group_metrics(embeddings=embeddings, metadata=metadata)
     df_results.to_csv(EMBEDDINGS_DIR / "quantitative_results.csv", index=False) # Save analysis results
 
-    # 3.) Artifact Check Analysis
+    # 3.) Artifact Check Analysis (includes validity tests)
     run_artifact_analysis(EMBEDDINGS_DIR)
+
+    # 4.) Source Leakage Analysis
+    run_source_leakage_analysis(EMBEDDINGS_DIR)
 
     print(f"\n {'*' * 10}  Experiment Complete  {'*' * 10}\n")
 

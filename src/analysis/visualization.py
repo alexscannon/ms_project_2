@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
+from scipy import stats
 import umap
 from sklearn.decomposition import PCA
 
@@ -188,6 +189,107 @@ def plot_projections(
     else:
         plt.show()
 
+
+def plot_source_separation(metadata, save_path=None):
+    """
+    Validity Check Visualization: Source-Only UMAP
+
+    This plot colors points ONLY by source (Real vs Synthetic), ignoring all class labels.
+    Purpose: Detect if embeddings cluster by generation method rather than semantic content.
+
+    Interpretation:
+    - If CIFAR and GenAI points are well-mixed: Good - embeddings are source-agnostic
+    - If CIFAR and GenAI form separate clusters: Bad - artifacts may dominate semantics
+    """
+    from matplotlib.lines import Line2D
+
+    # Create binary source label
+    metadata = metadata.copy()
+    metadata['source_binary'] = metadata['source'].apply(
+        lambda s: 'Real (CIFAR-100)' if s == 'cifar100' else 'Synthetic (GenAI)'
+    )
+
+    fig, axes = plt.subplots(1, 2, figsize=(20, 8))
+
+    # Left plot: Standard scatter with source coloring
+    ax1 = axes[0]
+    colors = {'Real (CIFAR-100)': '#2ecc71', 'Synthetic (GenAI)': '#e74c3c'}
+
+    for source_type, color in colors.items():
+        mask = metadata['source_binary'] == source_type
+        subset = metadata[mask]
+        alpha = 0.3 if source_type == 'Real (CIFAR-100)' else 0.8
+        size = 10 if source_type == 'Real (CIFAR-100)' else 30
+        marker = 'o' if source_type == 'Real (CIFAR-100)' else 'X'
+
+        ax1.scatter(
+            subset['x'], subset['y'],
+            c=color, alpha=alpha, s=size, marker=marker,
+            label=source_type, edgecolors='none' if marker == 'o' else 'black',
+            linewidths=0.5
+        )
+
+    ax1.set_title("Source Separation Check\n(Should be well-mixed if no artifacts)", fontsize=14)
+    ax1.set_xlabel("UMAP 1")
+    ax1.set_ylabel("UMAP 2")
+    ax1.legend(loc='upper right')
+
+    # Right plot: Density comparison
+    ax2 = axes[1]
+
+    # Plot density contours for each source
+    for source_type, color in colors.items():
+        mask = metadata['source_binary'] == source_type
+        subset = metadata[mask]
+
+        if len(subset) < 10:
+            continue
+
+        x = subset['x'].values
+        y = subset['y'].values
+
+        # Kernel density estimation
+        try:
+            xy = np.vstack([x, y])
+            kernel = stats.gaussian_kde(xy)
+
+            # Create grid for density estimation
+            xmin, xmax = metadata['x'].min(), metadata['x'].max()
+            ymin, ymax = metadata['y'].min(), metadata['y'].max()
+            xx, yy = np.mgrid[xmin:xmax:100j, ymin:ymax:100j]
+            positions = np.vstack([xx.ravel(), yy.ravel()])
+            density = np.reshape(kernel(positions).T, xx.shape)
+
+            # Plot contours
+            ax2.contour(xx, yy, density, levels=5, colors=[color], alpha=0.7)
+            ax2.contourf(xx, yy, density, levels=5, colors=[color], alpha=0.2)
+        except Exception as e:
+            logger.warning(f"Could not compute density for {source_type}: {e}")
+            # Fallback to scatter
+            ax2.scatter(x, y, c=color, alpha=0.3, s=5, label=source_type)
+
+    ax2.set_title("Source Density Comparison\n(Overlapping contours = good mixing)", fontsize=14)
+    ax2.set_xlabel("UMAP 1")
+    ax2.set_ylabel("UMAP 2")
+
+    # Custom legend for density plot
+    legend_elements = [
+        Line2D([0], [0], color=colors['Real (CIFAR-100)'], linewidth=2, label='Real (CIFAR-100)'),
+        Line2D([0], [0], color=colors['Synthetic (GenAI)'], linewidth=2, label='Synthetic (GenAI)')
+    ]
+    ax2.legend(handles=legend_elements, loc='upper right')
+
+    plt.tight_layout()
+
+    if save_path:
+        plt.savefig(save_path, dpi=150)
+        plt.close()
+    else:
+        plt.show()
+
+    logger.info("Source separation check plot generated.")
+
+
 def run_visualization_suite(embeddings_dir: Path, embeddings, metadata):
     """
     Main function to run the full visualization report.
@@ -258,4 +360,12 @@ def run_visualization_suite(embeddings_dir: Path, embeddings, metadata):
             palette=None # Uses custom 20-color palette
         )
 
-    logger.info(f"✅ Visualization suite complete! Plots saved to {plots_dir}")
+    # --- PLOT 5: Source-Only Visualization (Validity Check) ---
+    # This plot ignores class labels entirely and only shows source separation.
+    # If CIFAR and GenAI form distinct clusters here, it indicates artifact-based clustering.
+    plot_source_separation(
+        metadata,
+        save_path=plots_dir / "source_separation_check.png"
+    )
+
+    logger.info(f"Visualization suite complete! Plots saved to {plots_dir}")
