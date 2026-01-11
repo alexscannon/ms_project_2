@@ -39,3 +39,6 @@ conda activate project_env
 ```bash
 python3 main.py
 ```
+
+## Misc. Notes
+- This project (specifically the embedding generation) requires the use a GPU. This project was ran on a NVIDIA RTX 3090 (VRAM – 24GB).

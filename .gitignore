@@ -7,5 +7,6 @@ logs/
 outputs/
 wandb/
 visuals/
+results/
 
 **/__pycache__/
