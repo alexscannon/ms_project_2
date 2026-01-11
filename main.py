@@ -33,28 +33,28 @@ def main(config: DictConfig):
         dino_version=config.model.dino_version
     )
 
-    DATA_DIR = Path("/home/alex/data")
+    DATA_DIR = Path(config.data_dir)
     EMBEDDINGS_DIR = DATA_DIR / "embeddings" / f"DINOv{config.model.dino_version}"
 
 
     # ============================ CREATE EMBEDDINGS ============================ #
     if not EMBEDDINGS_DIR.exists():
         # --------------------- LOAD DATASETS --------------------- #
-        # DINOv3-g/14 uses 518×518 (can also use 224×224 for speed)
-        DINO_INPUT_SIZE = 224
-        CIFAR100_SIZE = 32
+        # DINOv3-g/14 uses 518×518 (can also use 256x256 for speed)
+        DINO_INPUT_SIZE = config.model.backbone.expected_input_size
+        CIFAR100_IMG_SIZE = config.data.image_size
 
         transform = transforms.Compose([
             # Step 1: Downsample all images to CIFAR100's native 32×32 resolution to equalize quality
-            transforms.Resize(size=CIFAR100_SIZE, interpolation=transforms.InterpolationMode.BICUBIC),
+            transforms.Resize(size=CIFAR100_IMG_SIZE, interpolation=transforms.InterpolationMode.BICUBIC),
             # Step 2: Upsample to DINOv3 expected input size
             transforms.Resize(size=DINO_INPUT_SIZE, interpolation=transforms.InterpolationMode.BICUBIC),
             # Convert to tensor [C, H, W] in range [0, 1]
             transforms.ToTensor(),
             # Step 3: Normalize with ImageNet stats (DINOv2 training stats)
             transforms.Normalize(
-                mean=[0.485, 0.456, 0.406],
-                std=[0.229, 0.224, 0.225]
+                mean=config.model.backbone.mean,
+                std=config.model.backbone.std
             )
         ])
 
