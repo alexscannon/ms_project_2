@@ -59,9 +59,11 @@ def main(config: DictConfig):
             )
         ])
 
+        # genai_data_dir = DATA_DIR / "ms_cifar100_ai_data_cleaned"
+        genai_data_dir = DATA_DIR / "synthetic_cifar100_research"
         dataset = CombinedCIFAR100GenAIDataset(
             cifar100_root=DATA_DIR,
-            genai_root=DATA_DIR / "ms_cifar100_ai_data_cleaned",
+            genai_root=genai_data_dir,
             include_cifar_train=True,
             include_cifar_test=True,
             transform=transform
@@ -119,6 +121,9 @@ def main(config: DictConfig):
 
     # 4.) Source Leakage Analysis
     run_source_leakage_analysis(EMBEDDINGS_DIR)
+
+    from src.analysis.balanced_analysis import run_balanced_analysis
+    run_balanced_analysis(EMBEDDINGS_DIR)
 
     print(f"\n {'*' * 10}  Experiment Complete  {'*' * 10}\n")
 
