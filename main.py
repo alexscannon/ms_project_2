@@ -60,7 +60,7 @@ def main(config: DictConfig):
         ])
 
         # genai_data_dir = DATA_DIR / "ms_cifar100_ai_data_cleaned"
-        genai_data_dir = DATA_DIR / "synthetic_cifar100_research"
+        genai_data_dir = DATA_DIR / config.genai_dir
         dataset = CombinedCIFAR100GenAIDataset(
             cifar100_root=DATA_DIR,
             genai_root=genai_data_dir,
@@ -81,7 +81,7 @@ def main(config: DictConfig):
         )
 
         # Save embeddings, embedding metadata, label_mappings
-        extractor.save_embeddings(
+        EMBEDDINGS_DIR = extractor.save_embeddings(
             embeddings=embeddings,
             metadata_list=metadata,
             label_mappings=dataset.get_label_mappings(),

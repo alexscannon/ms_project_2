@@ -103,3 +103,32 @@ def get_device(config: DictConfig) -> torch.device:
 
     logger.info(f"Using device: {device}")
     return device
+
+
+def create_next_experiment_dir(base_dir="DINOv2", prefix="set_"):
+    """
+    Scans base_dir for folders starting with prefix, finds the highest number,
+    and creates the next incremented directory.
+    """
+    path = pathlib.Path(base_dir)
+    path.mkdir(parents=True, exist_ok=True)  # Create DINOv2 if it doesn't exist
+
+    max_id = 0
+
+    # Iterate over existing directories to find the highest number
+    for item in path.iterdir():
+        if item.is_dir() and item.name.startswith(prefix):
+            try:
+                # Extract the number from the folder name (e.g., "set_5" -> 5)
+                num = int(item.name.replace(prefix, ""))
+                max_id = max(max_id, num)
+            except ValueError:
+                continue  # Skip folders that don't end in a number
+
+    # Define the new directory name
+    new_experiment_dir = path / f"{prefix}{max_id + 1}"
+
+    # Create the directory
+    new_experiment_dir.mkdir()
+
+    return new_experiment_dir

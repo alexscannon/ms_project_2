@@ -179,6 +179,35 @@ class CombinedCIFAR100GenAIDataset(Dataset):
         else:
             logger.warning(f"GenAI novel SUPERCLASS images directory does not exist at {novel_super_path}")
 
+
+        # GenAI In-Distribution CIRAR100 data
+        novel_sub_path = genai_root
+        if novel_sub_path.exists():
+            for superclass_dir in novel_sub_path.iterdir():
+                if not superclass_dir.is_dir():
+                    logger.warning(f"{superclass_dir} is not a directory ...")
+                    continue
+                superclass_name = superclass_dir.name
+
+                for subclass_dir in superclass_dir.iterdir():
+                    if not subclass_dir.is_dir():
+                        logger.warning(f"{subclass_dir} is not a directory ...")
+                        continue
+                    subclass_name = subclass_dir.name
+
+                    for img_file in subclass_dir.glob('*.png'):
+                        self.samples.append({
+                            'image': Image.open(img_file).convert('RGB'),
+                            'subclass_name': subclass_name,
+                            'superclass_name': superclass_name,
+                            'source': 'genai_ind',
+                            'split': 'genai',
+                            'image_path': str(img_file.relative_to(genai_root))
+                        })
+        else:
+            logger.warning(f"GenAI novel SUBCLASS images directory does not exist at {novel_sub_path}")
+
+
         logger.info(f"Novel Superclass names: {str(superclass_names)}")
 
     def _build_label_mappings(self):

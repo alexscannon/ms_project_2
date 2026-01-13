@@ -24,7 +24,8 @@ def calculate_group_metrics(embeddings, metadata):
     groups = {
         'Baseline (CIFAR100)': metadata['source'] == 'cifar100',
         'Group A (Novel Subclass)': metadata['source'] == 'genai_novel_subclass',
-        'Group B (Novel Superclass)': metadata['source'] == 'genai_novel_superclass'
+        'Group B (Novel Superclass)': metadata['source'] == 'genai_novel_superclass',
+        'Group B (GenAI CIFAR100)': metadata['source'] == 'genai_ind'
     }
 
     results = []
