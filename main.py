@@ -41,7 +41,7 @@ def main(config: DictConfig):
     # ============================ CREATE EMBEDDINGS ============================ #
     if not EMBEDDINGS_DIR.exists():
         # --------------------- LOAD DATASETS --------------------- #
-        # DINOv3-g/14 uses 518×518 (can also use 256x256 for speed)
+        # DINOv2/v3 use patch size 14, so input must be divisible by 14 (e.g., 224, 518)
         DINO_INPUT_SIZE = config.model.backbone.expected_input_size
         CIFAR100_IMG_SIZE = config.data.image_size
 
