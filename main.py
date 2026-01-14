@@ -59,11 +59,12 @@ def main(config: DictConfig):
             )
         ])
 
-        # genai_data_dir = DATA_DIR / "ms_cifar100_ai_data_cleaned"
-        genai_data_dir = DATA_DIR / config.genai_dir
+        genai_novel_dir = DATA_DIR / config.genai_novel_dir
+        genai_ind_dir = DATA_DIR / config.genai_ind_dir
         dataset = CombinedCIFAR100GenAIDataset(
             cifar100_root=DATA_DIR,
-            genai_root=genai_data_dir,
+            genai_novel_root=genai_novel_dir,
+            genai_ind_root=genai_ind_dir,
             include_cifar_train=True,
             include_cifar_test=True,
             transform=transform
