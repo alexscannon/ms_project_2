@@ -5,6 +5,7 @@ import logging
 import yaml
 from typing import Dict, List, Optional, Tuple
 import logging
+from pathlib import Path
 
 from dotenv import load_dotenv
 import numpy as np
@@ -110,7 +111,7 @@ def create_next_experiment_dir(base_dir="DINOv2", prefix="set_"):
     Scans base_dir for folders starting with prefix, finds the highest number,
     and creates the next incremented directory.
     """
-    path = pathlib.Path(base_dir)
+    path = Path(base_dir)
     path.mkdir(parents=True, exist_ok=True)  # Create DINOv2 if it doesn't exist
 
     max_id = 0

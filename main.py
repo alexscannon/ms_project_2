@@ -1,6 +1,8 @@
+import json
 import logging
 from pathlib import Path
 
+import numpy as np
 import hydra
 from omegaconf import DictConfig
 from torchvision.transforms import v2 as transforms
@@ -113,9 +115,27 @@ def main(config: DictConfig):
         metadata=metadata
     )
 
-    # 2.) Compute quantitative clustering/grouping metrics
-    df_results = calculate_group_metrics(embeddings=embeddings, metadata=metadata)
-    df_results.to_csv(EMBEDDINGS_DIR / "quantitative_results.csv", index=False) # Save analysis results
+    # 2.) Compute quantitative clustering/grouping metrics + RQ2 novel class analysis
+    df_results, rq2_results = calculate_group_metrics(embeddings=embeddings, metadata=metadata)
+    df_results.to_csv(EMBEDDINGS_DIR / "quantitative_results.csv", index=False)
+
+    # Save RQ2 results
+    rq2_path = EMBEDDINGS_DIR / "rq2_novel_class_results.json"
+    with open(rq2_path, 'w') as f:
+        # Convert numpy types for JSON serialization
+        serializable_rq2 = {}
+        for k, v in rq2_results.items():
+            if isinstance(v, (np.floating, np.integer)):
+                serializable_rq2[k] = float(v)
+            elif isinstance(v, dict):
+                serializable_rq2[k] = {
+                    str(dk): float(dv) if isinstance(dv, (np.floating, np.integer)) else dv
+                    for dk, dv in v.items()
+                }
+            else:
+                serializable_rq2[k] = v
+        json.dump(serializable_rq2, f, indent=2)
+    logger.info(f"RQ2 results saved to {rq2_path}")
 
     # 3.) Artifact Check Analysis (includes validity tests)
     run_artifact_analysis(EMBEDDINGS_DIR)

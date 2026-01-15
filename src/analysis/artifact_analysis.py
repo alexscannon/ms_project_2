@@ -269,6 +269,92 @@ def embedding_dimension_analysis(embeddings_norm, metadata, mask_cifar, mask_gen
     }
 
 
+def one_shot_source_classification(
+    embeddings_norm: np.ndarray,
+    metadata: pd.DataFrame,
+    mask_cifar: np.ndarray,
+    mask_genai: np.ndarray
+) -> dict:
+    """
+    Test 7: One-Shot Centroid-Based Source Classification (RQ1)
+
+    Uses a single centroid per source (CIFAR vs GenAI) as the classifier.
+    Each sample is classified based on which centroid it is closer to.
+    This is a true "one-shot" approach - no training, just prototype matching.
+
+    Args:
+        embeddings_norm: L2-normalized embeddings.
+        metadata: DataFrame with source column.
+        mask_cifar: Boolean mask for CIFAR samples.
+        mask_genai: Boolean mask for GenAI samples.
+
+    Returns:
+        dict: Results including accuracy and centroid similarity.
+    """
+    print(f"\n[Test 7] One-Shot Centroid-Based Source Classification (RQ1)")
+
+    # Compute centroids for each source
+    cifar_centroid = embeddings_norm[mask_cifar].mean(axis=0)
+    cifar_centroid = cifar_centroid / np.linalg.norm(cifar_centroid)
+
+    genai_centroid = embeddings_norm[mask_genai].mean(axis=0)
+    genai_centroid = genai_centroid / np.linalg.norm(genai_centroid)
+
+    # Compute cosine similarity between centroids
+    centroid_similarity = np.dot(cifar_centroid, genai_centroid)
+    centroid_distance = 1 - centroid_similarity
+
+    print(f"*  CIFAR centroid vs GenAI centroid cosine similarity: {centroid_similarity:.4f}")
+    print(f"*  Centroid cosine distance: {centroid_distance:.4f}")
+
+    # Classify each sample based on nearest centroid
+    combined_mask = mask_cifar | mask_genai
+    X = embeddings_norm[combined_mask]
+    y_true = metadata.loc[combined_mask, 'source'].apply(
+        lambda s: 0 if s == 'cifar100' else 1
+    ).values
+
+    # Compute distances to each centroid
+    dist_to_cifar = 1 - np.dot(X, cifar_centroid)
+    dist_to_genai = 1 - np.dot(X, genai_centroid)
+
+    # Predict based on nearest centroid
+    y_pred = (dist_to_genai < dist_to_cifar).astype(int)
+
+    # Calculate accuracy
+    accuracy = (y_pred == y_true).mean()
+
+    # Per-source accuracy
+    cifar_indices = y_true == 0
+    genai_indices = y_true == 1
+    cifar_acc = (y_pred[cifar_indices] == y_true[cifar_indices]).mean()
+    genai_acc = (y_pred[genai_indices] == y_true[genai_indices]).mean()
+
+    print(f"*  One-Shot Classification Accuracy: {accuracy:.2%}")
+    print(f"*  CIFAR correctly classified: {cifar_acc:.2%}")
+    print(f"*  GenAI correctly classified: {genai_acc:.2%}")
+    print(f"*  Baseline (random): 50.00%")
+
+    # Interpretation
+    if accuracy > 0.70:
+        print("*  RESULT: Strong source separation - centroids are highly discriminative.")
+        print("*  Interpretation: DINOv2 CAN distinguish real vs synthetic in one-shot setting.")
+    elif accuracy > 0.55:
+        print("*  RESULT: Moderate source separation.")
+        print("*  Interpretation: Some one-shot distinguishability, but not dominant.")
+    else:
+        print("*  RESULT: Weak/no source separation.")
+        print("*  Interpretation: DINOv2 embeddings appear source-agnostic in one-shot setting.")
+
+    return {
+        'oneshot_accuracy': accuracy,
+        'oneshot_cifar_accuracy': cifar_acc,
+        'oneshot_genai_accuracy': genai_acc,
+        'centroid_cosine_similarity': centroid_similarity,
+        'centroid_cosine_distance': centroid_distance
+    }
+
+
 def run_artifact_analysis(embeddings_dir_str):
     """
     Run comprehensive artifact and validity analysis.
@@ -280,6 +366,7 @@ def run_artifact_analysis(embeddings_dir_str):
     - Test 4: Within-superclass source separation
     - Test 5: Source-agnostic cross-source retrieval
     - Test 6: Embedding dimension analysis
+    - Test 7: One-shot centroid-based source classification (RQ1)
     """
     embeddings_dir = Path(embeddings_dir_str)
     embeddings, metadata = load_data(embeddings_dir)
@@ -293,7 +380,8 @@ def run_artifact_analysis(embeddings_dir_str):
     mask_cifar = metadata['source'] == 'cifar100'
     mask_genai_novel_sub = metadata['source'] == 'genai_novel_subclass'
     mask_genai_novel_super = metadata['source'] == 'genai_novel_superclass'
-    mask_genai_all = mask_genai_novel_sub | mask_genai_novel_super
+    mask_genai_ind = metadata['source'] == 'genai_ind'
+    mask_genai_all = mask_genai_novel_sub | mask_genai_novel_super | mask_genai_ind
 
     if not mask_genai_all.any():
         print("Error: No GenAI data found.")
@@ -303,6 +391,7 @@ def run_artifact_analysis(embeddings_dir_str):
     print(f"CIFAR-100 Samples: {mask_cifar.sum()}")
     print(f"GenAI Novel Subclass Samples: {mask_genai_novel_sub.sum()}")
     print(f"GenAI Novel Superclass Samples: {mask_genai_novel_super.sum()}")
+    print(f"GenAI In-Distribution Samples: {mask_genai_ind.sum()}")
     print(f"Total GenAI Samples: {mask_genai_all.sum()}")
 
     # Collect all results
@@ -434,6 +523,14 @@ def run_artifact_analysis(embeddings_dir_str):
         embeddings_norm, metadata, mask_cifar, mask_genai_all
     )
     all_results.update(test6_results)
+
+    # =========================================================
+    # TEST 7: One-Shot Centroid-Based Source Classification (RQ1)
+    # =========================================================
+    test7_results = one_shot_source_classification(
+        embeddings_norm, metadata, mask_cifar, mask_genai_all
+    )
+    all_results.update(test7_results)
 
     # =========================================================
     # SUMMARY
