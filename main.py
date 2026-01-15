@@ -120,20 +120,23 @@ def main(config: DictConfig):
     df_results.to_csv(EMBEDDINGS_DIR / "quantitative_results.csv", index=False)
 
     # Save RQ2 results
+    def make_serializable(obj):
+        """Recursively convert numpy types to Python native types for JSON."""
+        if isinstance(obj, (np.floating, np.float32, np.float64)):
+            return float(obj)
+        elif isinstance(obj, (np.integer, np.int32, np.int64)):
+            return int(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        elif isinstance(obj, dict):
+            return {str(k): make_serializable(v) for k, v in obj.items()}
+        elif isinstance(obj, (list, tuple)):
+            return [make_serializable(item) for item in obj]
+        return obj
+
     rq2_path = EMBEDDINGS_DIR / "rq2_novel_class_results.json"
     with open(rq2_path, 'w') as f:
-        # Convert numpy types for JSON serialization
-        serializable_rq2 = {}
-        for k, v in rq2_results.items():
-            if isinstance(v, (np.floating, np.integer)):
-                serializable_rq2[k] = float(v)
-            elif isinstance(v, dict):
-                serializable_rq2[k] = {
-                    str(dk): float(dv) if isinstance(dv, (np.floating, np.integer)) else dv
-                    for dk, dv in v.items()
-                }
-            else:
-                serializable_rq2[k] = v
+        serializable_rq2 = make_serializable(rq2_results)
         json.dump(serializable_rq2, f, indent=2)
     logger.info(f"RQ2 results saved to {rq2_path}")
 
