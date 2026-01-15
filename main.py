@@ -41,7 +41,7 @@ def main(config: DictConfig):
 
 
     # ============================ CREATE EMBEDDINGS ============================ #
-    if not EMBEDDINGS_DIR.exists():
+    if config.gen_embeddings:
         # --------------------- LOAD DATASETS --------------------- #
         # DINOv2/v3 use patch size 14, so input must be divisible by 14 (e.g., 224, 518)
         DINO_INPUT_SIZE = config.model.backbone.expected_input_size

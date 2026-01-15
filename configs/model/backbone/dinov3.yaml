@@ -3,7 +3,7 @@ model_size: large-plus
 
 # dataset_options:
 # DINOv3 uses patch size 14, so input must be divisible by 14 (e.g., 224, 518)
-expected_input_size: 518
+expected_input_size: 224
 center_crop: 224
 mean: [0.485, 0.456, 0.406]
 std: [0.229, 0.224, 0.225]
