@@ -90,8 +90,10 @@ def main(config: DictConfig):
             label_mappings=dataset.get_label_mappings(),
             output_dir=EMBEDDINGS_DIR,
         )
+        logger.info(f"EMBEDDINGS_DIR: {EMBEDDINGS_DIR}")
 
     else:
+        EMBEDDINGS_DIR = EMBEDDINGS_DIR / f"set_{config.set_num}"
         logger.info(f"Skipping embedding extractions. Extracted embeddings already exist at location {EMBEDDINGS_DIR}")
 
 
