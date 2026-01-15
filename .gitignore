@@ -1,12 +1,10 @@
 .env
 .DS_store
 .vscode
-CLAUDE.md
 
 logs/
 outputs/
 wandb/
 visuals/
-results/
 
 **/__pycache__/
