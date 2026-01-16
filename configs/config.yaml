@@ -6,7 +6,7 @@ defaults:
   - data: cifar100 # options: cifar100 / tiny_imagenet
   - logging: wandb # options: wandb, tensorboard, none
 
-set_num: 4
+set_num: 5
 gen_embeddings: True
 data_dir: /home/alex/data
 genai_novel_dir: ms_cifar100_ai_data_cleaned  # Novel subclasses and superclasses

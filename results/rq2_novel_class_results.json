@@ -12,9 +12,9 @@
   },
   "cifar_mean_intra_class_dist": 0.4098241925239563,
   "novel_subclass_mean_intra_class_dist": 0.2649155259132385,
-  "novel_superclass_mean_intra_class_dist": 0.37808674573898315,
+  "novel_superclass_mean_intra_class_dist": 0.37363922595977783,
   "novel_subclass_coherence_ratio": 0.6464126110076904,
-  "novel_superclass_coherence_ratio": 0.9225583672523499,
+  "novel_superclass_coherence_ratio": 0.9117061495780945,
   "novel_superclass_coherence": {
     "geological_structures": {
       "silhouette": 0.11259559541940689,
@@ -23,10 +23,10 @@
       "n_subclasses": 2
     },
     "biopunk_weaponry": {
-      "silhouette": 0.0,
-      "intra_dist": 0.43915456533432007,
-      "n_samples": 103,
-      "n_subclasses": 1
+      "silhouette": 0.2469828575849533,
+      "intra_dist": 0.49063917994499207,
+      "n_samples": 205,
+      "n_subclasses": 2
     },
     "fungi": {
       "silhouette": 0.526348352432251,
