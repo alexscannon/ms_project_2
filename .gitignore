@@ -8,3 +8,6 @@ wandb/
 visuals/
 
 **/__pycache__/
+
+# generated artifacts
+results/embeddings.npy
