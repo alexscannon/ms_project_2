@@ -1,0 +1,33 @@
+{
+  "balanced_source_classification_accuracy": 0.9543361476856825,
+  "balanced_source_classification_std": 0.0038673689526655688,
+  "balanced_cifar_same_source_rate": 0.8135886577057633,
+  "balanced_genai_same_source_rate": 0.9458663229607807,
+  "balanced_cifar_bias": 0.3135886577057633,
+  "balanced_genai_bias": 0.44586632296078066,
+  "balanced_average_bias": 0.37972749033327197,
+  "balanced_mean_within_superclass_separation": 0.18300296664237975,
+  "balanced_std_within_superclass_separation": 0.0561776255035282,
+  "balanced_separations_by_superclass": {
+    "food_containers": 0.3216956853866577,
+    "large_natural_outdoor_scenes": 0.1740109920501709,
+    "small_mammals": 0.15178179740905762,
+    "fish": 0.1818922758102417,
+    "reptiles": 0.18463778495788574,
+    "insects": 0.1855776309967041,
+    "fruit_and_vegetables": 0.15808385610580444,
+    "vehicles_2": 0.14564728736877441,
+    "household_electrical_devices": 0.24308109283447266,
+    "aquatic_mammals": 0.16287964582443237,
+    "medium_sized_mammals": 0.12687158584594727,
+    "vehicles_1": 0.1452237367630005,
+    "flowers": 0.1079568862915039,
+    "household_furniture": 0.2618635296821594,
+    "trees": 0.26630520820617676,
+    "large_man_made_outdoor_things": 0.20228660106658936,
+    "people": 0.2030695676803589,
+    "non_insect_invertebrates": 0.2205193042755127,
+    "large_carnivores": 0.1148909330368042,
+    "large_omnivores_and_herbivores": 0.10178393125534058
+  }
+}
