@@ -13,11 +13,32 @@ Determining the answer to the project's central question will be done by observi
 3. If we generate synthetic images of a completely novel sub-class, which belong to an existing super-class, will the synthetic examples be clustered together and meaningfully separate from other existing sub-class clusters of real existing super-classes and closer to other existing sub-class clusters of the same super-class than to other sub-classes of other super-classes?
 
 ## How to Run Experiment
-1. Clone repository: `git clone git@github.com:alexscannon/ms_project_2.git`
+1. Clone repository
+```bash
+git clone git@github.com:alexscannon/ms_project_2.git
+```
 2. Update all the machine specific path attributes in the `~/ms_project_2/configs/` directory
-3. Navigate to the project's root directory: `cd ms_project_2`
+3. Navigate to the project's root directory
+```bash
+cd ms_project_2
+```
 4. Fill in `.env` variables with personal information
-5. Create a conda virtual environment with required packages: `conda env create -f environment.yml`
-6. Create a `.env` file in project's root directory: `cp .env_template .env`
-7. Activate conda virtual environment: `conda activate project_env`
-8. Run project (from project root): `python3 main.py`
+5. Create a conda virtual environment with required packages
+```bash
+conda env create -f environment.yml
+```
+6. Create a `.env` file in project's root directory
+```bash
+cp .env_template .env
+```
+7. Activate conda virtual environment
+```bash
+conda activate project_env
+```
+8.  Run project (from project root)
+```bash
+python3 main.py
+```
+
+## Misc. Notes
+- This project (specifically the embedding generation) requires the use a GPU. This project was ran on a NVIDIA RTX 3090 (VRAM – 24GB).

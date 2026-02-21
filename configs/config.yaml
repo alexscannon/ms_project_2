@@ -6,13 +6,23 @@ defaults:
   - data: cifar100 # options: cifar100 / tiny_imagenet
   - logging: wandb # options: wandb, tensorboard, none
 
+# General Data Settings
+batch_size: 32
+num_workers: 4
+
+set_num: 5
+generate_embeddings: True
+data_dir: /home/alex/repos/ms_project_2/data
+genai_novel_dir: genai_cleaned # Novel subclasses and superclasses
+genai_ind_dir: synthetic_cifar100_research/cifar100_512x512_master  # In-distribution GenAI CIFAR-100
+genai_img_set: 1
+
 # General
 is_old_experiment: false # Whether to run the old experiment
 seed: 42 # random seed for reproducability
 device: cuda # CHANGE TO "cuda" IF YOU HAVE ONE
-output_dir: /home/alex/repos/ms_project/results/ # Change this to your own path
+output_dir: /home/alex/repos/ms_project_2/results/ # Change this to your own path
 embeddings_location: /home/alex/data/embeddings
 logs_location: /home/alex/repos/ms_project/logs
-data_dir: /home/alex/data/
 
 # save_model: false # save the model after training

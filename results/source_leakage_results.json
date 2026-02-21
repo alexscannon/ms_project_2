@@ -1,0 +1,18 @@
+{
+  "test1_cifar_same_source_rate": 0.9538266666666666,
+  "test1_genai_same_source_rate": 0.8558555271798614,
+  "test1_cifar_retrieval_bias": 0.10832754034909708,
+  "test1_genai_retrieval_bias": 0.7013546534974309,
+  "test1_average_retrieval_bias": 0.404841096923264,
+  "test1_expected_cifar_proportion": 0.8454991263175695,
+  "test1_expected_genai_proportion": 0.15450087368243054,
+  "test2_cifar_knn_accuracy": 0.9622666666666667,
+  "test2_genai_knn_accuracy": 0.991426486683692,
+  "test2_accuracy_gap": 0.02915982001702533,
+  "test2_mean_confusion_difference": 0.0015524438668686213,
+  "test2_max_confusion_difference": 0.0389999999999997,
+  "test2_max_diff_class_pair": [
+    "large_natural_outdoor_scenes",
+    "trees"
+  ]
+}

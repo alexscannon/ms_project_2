@@ -10,6 +10,8 @@ import numpy as np
 import pandas as pd
 import logging
 
+from src.utils import create_next_experiment_dir
+
 
 logger = logging.getLogger("msproject")
 
@@ -96,7 +98,7 @@ class DINOEmbeddingExtractor:
         """
         print(f"\n {'=' * 60} \n Saving results...\n {'=' * 60}")
 
-        os.makedirs(output_dir, exist_ok=True)
+        output_dir = create_next_experiment_dir(base_dir=output_dir, prefix="set_")
 
         # Save embeddings
         embeddings_filename = f"embeddings.npy"
@@ -142,3 +144,5 @@ class DINOEmbeddingExtractor:
         logger.info(f"Saved label mappings to {mappings_path}")
 
         print(f"\n {'=' * 60} \n Successfully extracted embeddings...\n {'=' * 60}")
+
+        return output_dir

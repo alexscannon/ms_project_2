@@ -1,0 +1,38 @@
+{
+  "novel_subclass_superclass_retrieval_acc": 0.6128133704735376,
+  "novel_subclass_per_superclass_acc": {
+    "fish": 0.96,
+    "flowers": 0.9285714285714286,
+    "food_containers": 0.5925925925925926,
+    "household_furniture": 0.9642857142857143,
+    "insects": 0.88,
+    "large_carnivores": 0.8372093023255814,
+    "medium_sized_mammals": 0.24050632911392406,
+    "small_mammals": 0.4807692307692308
+  },
+  "cifar_mean_intra_class_dist": 0.4098241925239563,
+  "novel_subclass_mean_intra_class_dist": 0.2649155259132385,
+  "novel_superclass_mean_intra_class_dist": 0.37363922595977783,
+  "novel_subclass_coherence_ratio": 0.6464126110076904,
+  "novel_superclass_coherence_ratio": 0.9117061495780945,
+  "novel_superclass_coherence": {
+    "geological_structures": {
+      "silhouette": 0.11259559541940689,
+      "intra_dist": 0.5568571090698242,
+      "n_samples": 198,
+      "n_subclasses": 2
+    },
+    "biopunk_weaponry": {
+      "silhouette": 0.2469828575849533,
+      "intra_dist": 0.49063917994499207,
+      "n_samples": 205,
+      "n_subclasses": 2
+    },
+    "fungi": {
+      "silhouette": 0.526348352432251,
+      "intra_dist": 0.38791173696517944,
+      "n_samples": 202,
+      "n_subclasses": 2
+    }
+  }
+}
