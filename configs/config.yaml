@@ -6,10 +6,14 @@ defaults:
   - data: cifar100 # options: cifar100 / tiny_imagenet
   - logging: wandb # options: wandb, tensorboard, none
 
+# General Data Settings
+batch_size: 32
+num_workers: 4
+
 set_num: 5
-gen_embeddings: True
-data_dir: /home/alex/data
-genai_novel_dir: ms_cifar100_ai_data_cleaned  # Novel subclasses and superclasses
+generate_embeddings: True
+data_dir: /home/alex/repos/ms_project_2/data
+genai_novel_dir: genai_cleaned # Novel subclasses and superclasses
 genai_ind_dir: synthetic_cifar100_research/cifar100_512x512_master  # In-distribution GenAI CIFAR-100
 genai_img_set: 1
 

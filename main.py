@@ -21,37 +21,34 @@ logger = logging.getLogger("msproject")
 
 @hydra.main(version_base=None, config_path="configs", config_name="config")
 def main(config: DictConfig):
-
-    print(f"\n {'=' * 60} \n Beginning Experiment...\n {'=' * 60}")
-    # ============================ EXPERIMENTAL SET UP ============================ #
-    # Load .env variables + set up logger + set random seed + set device + initialize logging
-    device = setup_experiment(config)
-
+    """
+    Main entrypoint for running experiment
+    """
+    # ============================ EXPERIMENTAL SET UP ====================== #
+    logger.info(f"\n {'=' * 60} \n Beginning Experiment...\n {'=' * 60}")
+    device = setup_experiment(config) # Load .env variables + set up logger + set random seed + set device + initialize logging
+    DATA_DIR = Path(config.data_dir)
 
     # ============================ LOAD ENCODER ============================ #
-    # Load pre-trained (not fine-tuned) DINO vit
+    # Load pre-trained (not fine-tuned) DINO ViT
     encoder = load_dino_model(
         model_size=config.model.backbone.model_size,
         device=config.device,
         dino_version=config.model.dino_version
     )
 
-    DATA_DIR = Path(config.data_dir)
     EMBEDDINGS_DIR = DATA_DIR / "embeddings" / f"DINOv{config.model.dino_version}"
-
-
     # ============================ CREATE EMBEDDINGS ============================ #
-    if config.gen_embeddings:
+    if config.generate_embeddings:
         # --------------------- LOAD DATASETS --------------------- #
-        # DINOv2/v3 use patch size 14, so input must be divisible by 14 (e.g., 224, 518)
-        DINO_INPUT_SIZE = config.model.backbone.expected_input_size
-        CIFAR100_IMG_SIZE = config.data.image_size
+        # DINOv2/v3 use patch size 14 -> input must be divisible by 14 (e.g., 224, 518)
+        dino_input_size = config.model.backbone.expected_input_size
 
         transform = transforms.Compose([
             # Step 1: Downsample all images to CIFAR100's native 32×32 resolution to equalize quality
-            transforms.Resize(size=CIFAR100_IMG_SIZE, interpolation=transforms.InterpolationMode.BICUBIC),
-            # Step 2: Upsample to DINOv3 expected input size
-            transforms.Resize(size=DINO_INPUT_SIZE, interpolation=transforms.InterpolationMode.BICUBIC),
+            transforms.Resize(size=config.data.image_size, interpolation=transforms.InterpolationMode.BICUBIC),
+            # Step 2: Upsample to DINO expected input size
+            transforms.Resize(size=dino_input_size, interpolation=transforms.InterpolationMode.BICUBIC),
             # Convert to tensor [C, H, W] in range [0, 1]
             transforms.ToTensor(),
             # Step 3: Normalize with ImageNet stats (DINOv2 training stats)
@@ -63,7 +60,8 @@ def main(config: DictConfig):
 
         genai_novel_dir = DATA_DIR / config.genai_novel_dir
         genai_ind_dir = DATA_DIR / config.genai_ind_dir
-        dataset = CombinedCIFAR100GenAIDataset(
+
+        dataset: CombinedCIFAR100GenAIDataset = CombinedCIFAR100GenAIDataset(
             cifar100_root=DATA_DIR,
             genai_novel_root=genai_novel_dir,
             genai_ind_root=genai_ind_dir,
@@ -74,16 +72,16 @@ def main(config: DictConfig):
 
         # --------------------- EXTRACT EMBEDDINGS --------------------- #
         # Initialize extractor
-        extractor = DINOEmbeddingExtractor(model=encoder, device=device)
+        extractor: DINOEmbeddingExtractor = DINOEmbeddingExtractor(model=encoder, device=device)
 
         # Extract embeddings
         embeddings, metadata = extractor.extract_embeddings(
             dataset=dataset,
-            batch_size=32,  # Adjust based on your GPU memory
-            num_workers=4
+            batch_size=config.batch_size,  # Adjust based on GPU memory
+            num_workers=config.num_workers
         )
 
-        # Save embeddings, embedding metadata, label_mappings
+        # Save: embeddings + embedding metadata + label_mappings
         EMBEDDINGS_DIR = extractor.save_embeddings(
             embeddings=embeddings,
             metadata_list=metadata,
@@ -98,18 +96,18 @@ def main(config: DictConfig):
 
 
     # =================================== Analysis =================================== #
-    print(f"\n {'=' * 60} \n Analyzing embeddings...\n {'=' * 60}")
+    logger.info(f"\n {'=' * 60} \n Analyzing embeddings...\n {'=' * 60}")
 
     # 1. Load Embeddings and embeddings' metadata
     emb_path = EMBEDDINGS_DIR / "embeddings.npy"
     meta_path = EMBEDDINGS_DIR / "metadata.csv"
 
     if not emb_path.exists() or not meta_path.exists():
-        logger.error(f"Could not find embedding data in {EMBEDDINGS_DIR}")
-        return
+        error_msg = f"No embedding data found at location: {EMBEDDINGS_DIR}"
+        logger.error(error_msg)
+        raise Exception(error_msg)
 
     embeddings, metadata = load_analysis_data(emb_path, meta_path)
-
     # 1.) Run visualization report
     run_visualization_suite(
         embeddings_dir=EMBEDDINGS_DIR,

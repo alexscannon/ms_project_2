@@ -11,3 +11,5 @@ visuals/
 
 # generated artifacts
 results/embeddings.npy
+
+data/
